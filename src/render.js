@@ -23,7 +23,6 @@ export class Renderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.skew = 0.42; // vertical squash, gives the planes their tilt
-    this.layerGap = 118;
     this.resize();
   }
 
@@ -37,18 +36,26 @@ export class Renderer {
     this.h = rect.height;
   }
 
+  // Layer count varies run to run, so the stack has to fit itself to the
+  // canvas instead of using a fixed gap that overflows at 5 layers.
+  geometry(layerCount) {
+    const topPad = 34;
+    const bottomPad = 20;
+    const planeW = this.w * 0.6;
+    const planeH = planeW * this.skew;
+    const usable = this.h - topPad - bottomPad - planeH;
+    const gap = layerCount > 1 ? Math.min(120, usable / (layerCount - 1)) : 0;
+    return { topPad, planeW, planeH, gap, shear: Math.min(26, gap * 0.24) };
+  }
+
   // Map a unit-square point on layer l into screen space.
   project(p, l, layerCount) {
-    const planeW = this.w * 0.62;
-    const planeH = planeW * this.skew;
-    const cx = this.w * 0.46;
-    const topPad = 70;
-    const baseY = topPad + (layerCount - 1 - l) * this.layerGap;
-    // shear the upper layers slightly right so the stack reads as 3-D
-    const shear = (layerCount - 1 - l) * 26;
+    const { topPad, planeW, planeH, gap, shear } = this.geometry(layerCount);
+    const cx = this.w * 0.47;
+    const depth = layerCount - 1 - l;
     return [
-      cx - planeW / 2 + p[0] * planeW + shear,
-      baseY + p[1] * planeH,
+      cx - planeW / 2 + p[0] * planeW + depth * shear,
+      topPad + depth * gap + p[1] * planeH,
     ];
   }
 
@@ -190,11 +197,9 @@ export class Renderer {
 
   // Screen point -> unit square on layer 0, for click-to-query.
   unprojectLayer0(px, py, layerCount) {
-    const planeW = this.w * 0.62;
-    const planeH = planeW * this.skew;
-    const cx = this.w * 0.46;
-    const topPad = 70;
-    const baseY = topPad + (layerCount - 1) * this.layerGap;
+    const { topPad, planeW, planeH, gap } = this.geometry(layerCount);
+    const cx = this.w * 0.47;
+    const baseY = topPad + (layerCount - 1) * gap;
     const x = (px - (cx - planeW / 2)) / planeW;
     const y = (py - baseY) / planeH;
     return [Math.max(0, Math.min(1, x)), Math.max(0, Math.min(1, y))];
