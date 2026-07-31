@@ -23,6 +23,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          # Turns Pages on if it is not already, so a fresh clone of this repo
+          # deploys without a manual settings visit.
+          enablement: true
       # No build step: the app is plain ES modules, so the repo root ships as-is.
       - uses: actions/upload-pages-artifact@v3
         with:
