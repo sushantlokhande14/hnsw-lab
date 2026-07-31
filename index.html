@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HNSW Lab — watch a vector search walk the graph</title>
+    <meta
+      name="description"
+      content="An interactive HNSW visualizer. Watch approximate nearest neighbor search descend the layer stack, hop by hop. No dependencies."
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>HNSW Lab</h1>
+      <p class="tagline">
+        Vector search does not scan your data. It walks a graph. This is that walk, one hop at a
+        time.
+      </p>
+    </header>
+
+    <main>
+      <section class="stage-wrap">
+        <canvas id="stage"></canvas>
+        <p id="narration" class="narration">building index…</p>
+        <p class="hint">click anywhere on the bottom plane to move the query</p>
+      </section>
+
+      <aside class="panel">
+        <div class="group">
+          <h2>Index</h2>
+          <label>
+            <span>points <b id="nOut">400</b></span>
+            <input id="n" type="range" min="60" max="900" step="20" value="400" />
+          </label>
+          <label>
+            <span>M, links per node <b id="MOut">6</b></span>
+            <input id="M" type="range" min="3" max="14" step="1" value="6" />
+          </label>
+        </div>
+
+        <div class="group">
+          <h2>Query</h2>
+          <label>
+            <span>ef, candidate breadth <b id="efOut">24</b></span>
+            <input id="ef" type="range" min="4" max="120" step="2" value="24" />
+          </label>
+          <label>
+            <span>k, neighbors wanted <b id="kOut">5</b></span>
+            <input id="k" type="range" min="1" max="20" step="1" value="5" />
+          </label>
+          <label>
+            <span>replay speed</span>
+            <input id="speed" type="range" min="1" max="12" step="1" value="2" />
+          </label>
+        </div>
+
+        <div class="buttons">
+          <button id="replay" class="primary">Replay search</button>
+          <button id="rebuild">New dataset</button>
+        </div>
+
+        <div class="group stats">
+          <h2>This query</h2>
+          <dl>
+            <div><dt>layers</dt><dd id="statLayers">–</dd></div>
+            <div><dt>hops</dt><dd id="statHops">–</dd></div>
+            <div><dt>distances computed</dt><dd id="statDist">–</dd></div>
+            <div><dt>recall@k</dt><dd id="statRecall">–</dd></div>
+            <div><dt>work skipped vs brute force</dt><dd id="statSaved">–</dd></div>
+          </dl>
+        </div>
+
+        <div class="group legend">
+          <h2>Legend</h2>
+          <ul>
+            <li><i class="dot query"></i> query</li>
+            <li><i class="dot current"></i> node being expanded</li>
+            <li><i class="dot visited"></i> distance computed</li>
+            <li><i class="dot result"></i> returned neighbor</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <p>
+        Built by <a href="https://sushantlokhande.me">Sushant Lokhande</a> while writing
+        <a href="https://github.com/sushantlokhande14/proxima">Proxima</a>, a C++ HNSW engine that
+        beats hnswlib by 1.8× at 0.999 recall. Algorithm from Malkov &amp; Yashunin, TPAMI 2018.
+      </p>
+    </footer>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
