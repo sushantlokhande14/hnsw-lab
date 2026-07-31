@@ -125,6 +125,12 @@ export class HNSW {
     }
 
     if (level > this.maxLevel) {
+      // This node is the only one that reaches these new top layers, so it has
+      // to be registered in each of them. Without this the upper layers exist
+      // but hold nothing, and search enters on an empty graph.
+      for (let l = this.maxLevel + 1; l <= level; l++) {
+        this._layer(l).set(id, this._layer(l).get(id) ?? []);
+      }
       this.maxLevel = level;
       this.entryPoint = id;
     }
